@@ -184,15 +184,17 @@
     settingsModal.classList.add('modal-hidden');
   });
 
-  btnUpdate.addEventListener('click', async () => {
-    btnUpdate.textContent = 'UPDATING...';
-    // Unregister service worker and clear all caches
-    const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.map((r) => r.unregister()));
-    const keys = await caches.keys();
-    await Promise.all(keys.map((k) => caches.delete(k)));
-    // Reload from network
-    window.location.reload(true);
+  btnUpdate.addEventListener('click', async (e) => {
+    e.preventDefault();
+    btnUpdate.textContent = 'updating...';
+    // Ask SW to check for a new version, then reload
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg) {
+      await reg.update();
+      // Wait briefly for new SW to install and activate
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+    window.location.reload();
   });
 
   durBtns.forEach((btn) => {
