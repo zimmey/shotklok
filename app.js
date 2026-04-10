@@ -82,10 +82,9 @@
     const colonW = 28;
     const numDigits = digits.length;
 
-    const totalW = numDigits * digitW + (numDigits - 1) * digitGap + colonW;
     const padX = 16;
     const padY = 10;
-    const viewW = totalW + padX * 2;
+    const digitH = 180;
     const viewH = digitH + padY * 2;
 
     let svgContent = '';
@@ -107,11 +106,12 @@
         svgContent += `<circle class="${dotCls}" cx="${cx}" cy="${padY + digitH * 0.3}" r="${dotR}"/>`;
         svgContent += `<circle class="${dotCls}" cx="${cx}" cy="${padY + digitH * 0.7}" r="${dotR}"/>`;
         curX += colonW + digitGap * 2;
-      } else {
+      } else if (i < digits.length - 1) {
         curX += digitGap;
       }
     });
 
+    const viewW = curX + padX;
     return `<svg viewBox="0 0 ${viewW} ${viewH}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">${svgContent}</svg>`;
   }
 
