@@ -7,6 +7,7 @@
   const btnReset = $('#btn-reset');
   const btnSettings = $('#btn-settings');
   const btnSettingsClose = $('#btn-settings-close');
+  const btnUpdate = $('#btn-update');
   const settingsModal = $('#settings-modal');
   const overlay = $('#overlay');
   const buzzer = $('#buzzer');
@@ -18,7 +19,6 @@
   let state = 'ready'; // ready | running | warning | paused | expired
   let interval = null;
   let wakeLock = null;
-  let overlayTimeout = null;
   let buzzerCtx = null;
   let buzzerTimeout = null;
 
@@ -142,7 +142,6 @@
     interval = setInterval(tick, 1000);
     acquireWakeLock();
     render();
-    autoHideOverlay();
   }
 
   function pause() {
@@ -151,7 +150,6 @@
     interval = null;
     releaseWakeLock();
     render();
-    showOverlay();
   }
 
   function reset() {
@@ -162,7 +160,6 @@
     stopBuzzer();
     releaseWakeLock();
     render();
-    showOverlay();
   }
 
   function expire() {
@@ -172,33 +169,9 @@
     render();
     startBuzzer();
     releaseWakeLock();
-    showOverlay();
   }
 
-  // --- Overlay auto-hide while running ---
-
-  function autoHideOverlay() {
-    clearTimeout(overlayTimeout);
-    overlay.classList.remove('hidden');
-    overlayTimeout = setTimeout(() => {
-      if (state === 'running' || state === 'warning') overlay.classList.add('hidden');
-    }, 3000);
-  }
-
-  function showOverlay() {
-    clearTimeout(overlayTimeout);
-    overlay.classList.remove('hidden');
-  }
-
-  ledDisplay.addEventListener('click', () => {
-    if (state === 'running' || state === 'warning') {
-      if (overlay.classList.contains('hidden')) {
-        autoHideOverlay();
-      } else {
-        overlay.classList.add('hidden');
-      }
-    }
-  });
+  // --- Overlay is always visible now ---
 
   // --- Settings Modal ---
 
@@ -209,6 +182,17 @@
 
   btnSettingsClose.addEventListener('click', () => {
     settingsModal.classList.add('modal-hidden');
+  });
+
+  btnUpdate.addEventListener('click', async () => {
+    btnUpdate.textContent = 'UPDATING...';
+    // Unregister service worker and clear all caches
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map((r) => r.unregister()));
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => caches.delete(k)));
+    // Reload from network
+    window.location.reload(true);
   });
 
   durBtns.forEach((btn) => {
