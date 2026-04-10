@@ -99,16 +99,18 @@
         const cls = on[si] ? 'seg-on' : 'seg-off';
         svgContent += `<polygon class="${cls}" points="${points}"/>`;
       });
-      curX += digitW + digitGap;
+      curX += digitW;
 
       // Draw colon after the appropriate digit
       if (i === colonAfter) {
-        const cx = curX - digitGap / 2;
+        const cx = curX + (colonW + digitGap * 2) / 2;
         const dotR = digitW * 0.06;
         const dotCls = 'colon-dot on';
         svgContent += `<circle class="${dotCls}" cx="${cx}" cy="${padY + digitH * 0.3}" r="${dotR}"/>`;
         svgContent += `<circle class="${dotCls}" cx="${cx}" cy="${padY + digitH * 0.7}" r="${dotR}"/>`;
-        curX += colonW;
+        curX += colonW + digitGap * 2;
+      } else {
+        curX += digitGap;
       }
     });
 
