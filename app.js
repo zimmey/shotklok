@@ -182,6 +182,11 @@
 
   btnUpdate.addEventListener('click', async (e) => {
     e.preventDefault();
+    if (!navigator.onLine) {
+      btnUpdate.textContent = 'need wifi!';
+      setTimeout(() => { btnUpdate.textContent = 'update'; }, 2000);
+      return;
+    }
     btnUpdate.textContent = 'updating...';
     // Clear all caches so reload fetches everything fresh
     const keys = await caches.keys();
