@@ -18,12 +18,20 @@
       <div id="controls">
         <button id="btn-reset" class="btn" aria-label="Reset">&#8635;</button>
         <button id="btn-start" class="btn btn-primary" aria-label="Start">START</button>
+        <button id="btn-settings" class="btn" aria-label="Settings">&#9881;</button>
       </div>
-      <div id="duration-bar">
-        <button class="dur" data-seconds="60">1:00</button>
-        <button class="dur" data-seconds="180">3:00</button>
-        <button class="dur active" data-seconds="300">5:00</button>
-        <button class="dur" data-seconds="600">10:00</button>
+    </div>
+    <div id="settings-modal" class="modal-hidden">
+      <div id="settings-panel">
+        <h2>Game Duration</h2>
+        <div id="duration-bar">
+          <button class="dur" data-seconds="60">1:00</button>
+          <button class="dur" data-seconds="180">3:00</button>
+          <button class="dur" data-seconds="240">4:00</button>
+          <button class="dur" data-seconds="300">5:00</button>
+          <button class="dur" data-seconds="600">10:00</button>
+        </div>
+        <button id="btn-settings-close" class="btn btn-close">DONE</button>
       </div>
     </div>
   </div>

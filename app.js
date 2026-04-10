@@ -5,25 +5,28 @@
   const ledDisplay = $('#led-display');
   const btnStart = $('#btn-start');
   const btnReset = $('#btn-reset');
+  const btnSettings = $('#btn-settings');
+  const btnSettingsClose = $('#btn-settings-close');
+  const settingsModal = $('#settings-modal');
   const overlay = $('#overlay');
   const buzzer = $('#buzzer');
   const durBtns = document.querySelectorAll('.dur');
 
-  let totalSeconds = 300;
+  // Load saved duration or default to 5 minutes
+  let totalSeconds = parseInt(localStorage.getItem('shotklok-duration'), 10) || 300;
   let remaining = totalSeconds;
   let state = 'ready'; // ready | running | paused | expired
   let interval = null;
   let wakeLock = null;
   let overlayTimeout = null;
 
+  // Mark the saved duration button as active on load
+  durBtns.forEach((b) => {
+    b.classList.toggle('active', parseInt(b.dataset.seconds, 10) === totalSeconds);
+  });
+
   // --- Seven-Segment Digit Rendering ---
 
-  // Segment map: which segments are on for each digit (a-g)
-  //   a
-  //  f b
-  //   g
-  //  e c
-  //   d
   const SEGMENTS = {
     0: [1,1,1,1,1,1,0],
     1: [0,1,1,0,0,0,0],
@@ -37,12 +40,10 @@
     9: [1,1,1,1,0,1,1],
   };
 
-  // Build segment polygon paths for a digit at position (x, y) with size (w, h)
-  // Segments have a slight skew/bevel for that authentic LED look
   function digitSegments(x, y, w, h) {
-    const t = w * 0.08; // segment thickness
-    const g = t * 0.25; // gap between segments
-    const sk = t * 0.15; // skew for beveled edges
+    const t = w * 0.08;
+    const g = t * 0.25;
+    const sk = t * 0.15;
 
     return [
       // a - top horizontal
@@ -66,7 +67,6 @@
     const mins = Math.floor(remaining / 60);
     const secs = remaining % 60;
 
-    // Determine digits to show: M:SS or MM:SS
     let digits;
     if (mins >= 10) {
       digits = [Math.floor(mins / 10), mins % 10, Math.floor(secs / 10), secs % 10];
@@ -74,9 +74,8 @@
       digits = [mins, Math.floor(secs / 10), secs % 10];
     }
 
-    const colonAfter = mins >= 10 ? 1 : 0; // colon goes after index 0 or 1
+    const colonAfter = mins >= 10 ? 1 : 0;
 
-    // Layout calculations
     const digitW = 100;
     const digitH = 180;
     const digitGap = 18;
@@ -84,7 +83,7 @@
     const numDigits = digits.length;
 
     const totalW = numDigits * digitW + (numDigits - 1) * digitGap + colonW;
-    const padX = 10;
+    const padX = 16;
     const padY = 10;
     const viewW = totalW + padX * 2;
     const viewH = digitH + padY * 2;
@@ -101,7 +100,6 @@
       });
       curX += digitW;
 
-      // Draw colon after the appropriate digit
       if (i === colonAfter) {
         const cx = curX + (colonW + digitGap * 2) / 2;
         const dotR = digitW * 0.06;
@@ -188,7 +186,6 @@
     overlay.classList.remove('hidden');
   }
 
-  // Tap display to toggle overlay while running
   ledDisplay.addEventListener('click', () => {
     if (state === 'running') {
       if (overlay.classList.contains('hidden')) {
@@ -197,6 +194,30 @@
         overlay.classList.add('hidden');
       }
     }
+  });
+
+  // --- Settings Modal ---
+
+  btnSettings.addEventListener('click', () => {
+    if (state === 'running') return;
+    settingsModal.classList.remove('modal-hidden');
+  });
+
+  btnSettingsClose.addEventListener('click', () => {
+    settingsModal.classList.add('modal-hidden');
+  });
+
+  durBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (state === 'running') return;
+      durBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      totalSeconds = parseInt(btn.dataset.seconds, 10);
+      remaining = totalSeconds;
+      state = 'ready';
+      localStorage.setItem('shotklok-duration', totalSeconds);
+      render();
+    });
   });
 
   // --- Buzzer ---
@@ -246,18 +267,6 @@
   });
 
   btnReset.addEventListener('click', reset);
-
-  durBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      if (state === 'running') return;
-      durBtns.forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      totalSeconds = parseInt(btn.dataset.seconds, 10);
-      remaining = totalSeconds;
-      state = 'ready';
-      render();
-    });
-  });
 
   // --- Service Worker ---
 

@@ -36,11 +36,12 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2%;
 }
 
 #led-display svg {
-  width: 96%;
-  height: 90%;
+  width: 100%;
+  height: 100%;
 }
 
 /* Segment styling */
@@ -156,19 +157,52 @@ html, body {
   background: var(--warn);
 }
 
+/* Settings Modal */
+#settings-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: opacity 0.2s;
+}
+
+#settings-modal.modal-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#settings-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+#settings-panel h2 {
+  font-size: 1.8rem;
+  color: var(--fg);
+  font-weight: normal;
+  letter-spacing: 0.1em;
+}
+
 /* Duration Selector */
 #duration-bar {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .dur {
   background: transparent;
   color: var(--muted);
   border: 2px solid var(--muted);
-  border-radius: 0.5rem;
-  padding: 0.4rem 0.8rem;
-  font-size: 1rem;
+  border-radius: 0.75rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1.4rem;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.15s;
@@ -180,3 +214,16 @@ html, body {
 }
 
 .dur:active { transform: scale(0.95); }
+
+.btn-close {
+  border-radius: 0.75rem;
+  width: auto;
+  padding: 0 2rem;
+  height: 3.5rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+  font-family: inherit;
+  background: var(--seg-on);
+  color: var(--bg);
+  margin-top: 1rem;
+}
