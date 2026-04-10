@@ -237,21 +237,13 @@ html, body {
   margin-top: 1rem;
 }
 
-.btn-update {
-  border-radius: 0.75rem;
-  width: auto;
-  padding: 0 2rem;
-  height: 3rem;
-  font-size: 1rem;
-  font-weight: bold;
-  font-family: inherit;
-  background: var(--muted);
-  color: var(--fg);
-  margin-top: 0.5rem;
-}
-
 #version {
   color: var(--fg);
   font-size: 0.8rem;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
+}
+
+#version a {
+  color: var(--fg);
+  text-decoration: underline;
 }
