@@ -241,3 +241,9 @@ html, body {
   color: var(--bg);
   margin-top: 1rem;
 }
+
+#version {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 1rem;
+}
