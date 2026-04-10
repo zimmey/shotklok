@@ -140,7 +140,6 @@
     if (state === 'expired') { reset(); return; }
     state = remaining <= 10 ? 'warning' : 'running';
     interval = setInterval(tick, 1000);
-    acquireWakeLock();
     render();
   }
 
@@ -157,7 +156,6 @@
     remaining = totalSeconds;
     state = 'ready';
     stopBuzzer();
-    releaseWakeLock();
     render();
   }
 
@@ -260,7 +258,7 @@
   }
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && state !== 'ready') acquireWakeLock();
+    if (document.visibilityState === 'visible') acquireWakeLock();
   });
 
   // --- Event Handlers ---
@@ -280,4 +278,5 @@
 
   // --- Init ---
   render();
+  acquireWakeLock();
 })();
