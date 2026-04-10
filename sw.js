@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shotklok-v7';
+const CACHE_NAME = 'shotklok-v8';
 const ASSETS = [
   './',
   './index.html',
