@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#111111">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>ShotKlok</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="timer-display" class="ready">
+      <span id="minutes">5</span><span class="colon">:</span><span id="seconds">00</span>
+    </div>
+    <div id="controls">
+      <button id="btn-reset" class="btn" aria-label="Reset">&#8635;</button>
+      <button id="btn-start" class="btn btn-primary" aria-label="Start">START</button>
+    </div>
+    <div id="duration-bar">
+      <button class="dur" data-seconds="60">1:00</button>
+      <button class="dur" data-seconds="180">3:00</button>
+      <button class="dur active" data-seconds="300">5:00</button>
+      <button class="dur" data-seconds="600">10:00</button>
+    </div>
+  </div>
+  <audio id="buzzer" preload="auto" src="buzzer.mp3"></audio>
+  <script src="app.js"></script>
+</body>
+</html>
