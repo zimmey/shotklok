@@ -61,6 +61,20 @@ html, body {
   filter: drop-shadow(0 0 6px var(--warn-glow));
 }
 
+#led-display.warning .seg-on {
+  fill: var(--danger);
+  filter: drop-shadow(0 0 8px var(--danger-glow));
+}
+
+#led-display.warning {
+  animation: led-pulse 0.5s infinite alternate;
+}
+
+#led-display.warning .colon-dot.on {
+  fill: var(--danger);
+  filter: drop-shadow(0 0 8px var(--danger-glow));
+}
+
 #led-display.expired .seg-on {
   fill: var(--danger);
   filter: drop-shadow(0 0 8px var(--danger-glow));

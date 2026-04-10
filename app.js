@@ -15,10 +15,12 @@
   // Load saved duration or default to 5 minutes
   let totalSeconds = parseInt(localStorage.getItem('shotklok-duration'), 10) || 300;
   let remaining = totalSeconds;
-  let state = 'ready'; // ready | running | paused | expired
+  let state = 'ready'; // ready | running | warning | paused | expired
   let interval = null;
   let wakeLock = null;
   let overlayTimeout = null;
+  let buzzerCtx = null;
+  let buzzerTimeout = null;
 
   // Mark the saved duration button as active on load
   durBtns.forEach((b) => {
@@ -118,8 +120,8 @@
   function render() {
     ledDisplay.innerHTML = buildSVG();
     ledDisplay.className = state;
-    btnStart.textContent = state === 'running' ? 'PAUSE' : state === 'expired' ? 'RESET' : 'START';
-    btnStart.classList.toggle('running', state === 'running');
+    btnStart.textContent = (state === 'running' || state === 'warning') ? 'PAUSE' : state === 'expired' ? 'RESET' : 'START';
+    btnStart.classList.toggle('running', state === 'running' || state === 'warning');
   }
 
   // --- Timer Core ---
@@ -127,13 +129,16 @@
   function tick() {
     if (remaining <= 0) { expire(); return; }
     remaining--;
+    if (remaining <= 10 && remaining > 0 && state !== 'warning') {
+      state = 'warning';
+    }
     render();
     if (remaining <= 0) expire();
   }
 
   function start() {
     if (state === 'expired') { reset(); return; }
-    state = 'running';
+    state = remaining <= 10 ? 'warning' : 'running';
     interval = setInterval(tick, 1000);
     acquireWakeLock();
     render();
@@ -154,6 +159,7 @@
     interval = null;
     remaining = totalSeconds;
     state = 'ready';
+    stopBuzzer();
     releaseWakeLock();
     render();
     showOverlay();
@@ -164,7 +170,7 @@
     interval = null;
     state = 'expired';
     render();
-    playBuzzer();
+    startBuzzer();
     releaseWakeLock();
     showOverlay();
   }
@@ -175,7 +181,7 @@
     clearTimeout(overlayTimeout);
     overlay.classList.remove('hidden');
     overlayTimeout = setTimeout(() => {
-      if (state === 'running') overlay.classList.add('hidden');
+      if (state === 'running' || state === 'warning') overlay.classList.add('hidden');
     }, 3000);
   }
 
@@ -185,7 +191,7 @@
   }
 
   ledDisplay.addEventListener('click', () => {
-    if (state === 'running') {
+    if (state === 'running' || state === 'warning') {
       if (overlay.classList.contains('hidden')) {
         autoHideOverlay();
       } else {
@@ -218,27 +224,43 @@
     });
   });
 
-  // --- Buzzer ---
+  // --- Buzzer (loops for 30s or until reset) ---
 
-  function playBuzzer() {
-    buzzer.play().catch(() => { generateBuzzerTone(); });
+  function startBuzzer() {
+    stopBuzzer();
+    buzzerCtx = new (window.AudioContext || window.webkitAudioContext)();
+    playBuzzerCycle();
+    // Auto-stop after 30 seconds
+    buzzerTimeout = setTimeout(stopBuzzer, 30000);
   }
 
-  function generateBuzzerTone() {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+  function playBuzzerCycle() {
+    if (!buzzerCtx || buzzerCtx.state === 'closed') return;
+    const osc = buzzerCtx.createOscillator();
+    const gain = buzzerCtx.createGain();
     osc.type = 'square';
     osc.frequency.value = 440;
     gain.gain.value = 0.3;
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(buzzerCtx.destination);
     osc.start();
-    const beepPattern = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
-    beepPattern.forEach((t, i) => {
-      gain.gain.setValueAtTime(i % 2 === 0 ? 0.3 : 0, ctx.currentTime + t);
+    // Beep pattern: on/off/on/off/on/off over 1.2s
+    const times = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
+    times.forEach((t, i) => {
+      gain.gain.setValueAtTime(i % 2 === 0 ? 0.3 : 0, buzzerCtx.currentTime + t);
     });
-    osc.stop(ctx.currentTime + 1.2);
+    osc.stop(buzzerCtx.currentTime + 1.2);
+    // Repeat after a short pause
+    osc.onended = () => playBuzzerCycle();
+  }
+
+  function stopBuzzer() {
+    clearTimeout(buzzerTimeout);
+    buzzerTimeout = null;
+    if (buzzerCtx) {
+      buzzerCtx.close();
+      buzzerCtx = null;
+    }
   }
 
   // --- Wake Lock ---
