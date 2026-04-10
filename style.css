@@ -207,8 +207,8 @@ html, body {
 
 .dur {
   background: transparent;
-  color: var(--muted);
-  border: 2px solid var(--muted);
+  color: var(--fg);
+  border: 2px solid var(--fg);
   border-radius: 0.75rem;
   padding: 0.8rem 1.5rem;
   font-size: 1.4rem;
