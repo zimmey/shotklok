@@ -57,8 +57,8 @@
       `${x},${y+h/2+g+sk} ${x},${y+h-g-sk} ${x+t},${y+h-g-sk-t} ${x+t},${y+h/2+g+sk+t}`,
       // f - top left vertical
       `${x},${y+g+sk} ${x},${y+h/2-g-sk} ${x+t},${y+h/2-g-sk-t} ${x+t},${y+g+sk+t}`,
-      // g - middle horizontal
-      `${x+g+sk},${y+h/2-t/2} ${x+w-g-sk},${y+h/2-t/2} ${x+w-g-sk-t/2},${y+h/2} ${x+w-g-sk},${y+h/2+t/2} ${x+g+sk},${y+h/2+t/2} ${x+g+sk+t/2},${y+h/2}`,
+      // g - middle horizontal (diamond ends pointing outward)
+      `${x+g+sk+t/2},${y+h/2-t/2} ${x+w-g-sk-t/2},${y+h/2-t/2} ${x+w-g-sk},${y+h/2} ${x+w-g-sk-t/2},${y+h/2+t/2} ${x+g+sk+t/2},${y+h/2+t/2} ${x+g+sk},${y+h/2}`,
     ];
   }
 
