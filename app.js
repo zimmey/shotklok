@@ -148,7 +148,6 @@
     state = 'paused';
     clearInterval(interval);
     interval = null;
-    releaseWakeLock();
     render();
   }
 
@@ -168,7 +167,6 @@
     state = 'expired';
     render();
     startBuzzer();
-    releaseWakeLock();
   }
 
   // --- Overlay is always visible now ---
@@ -262,7 +260,7 @@
   }
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && state === 'running') acquireWakeLock();
+    if (document.visibilityState === 'visible' && state !== 'ready') acquireWakeLock();
   });
 
   // --- Event Handlers ---
