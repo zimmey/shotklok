@@ -80,11 +80,9 @@
     const digitH = 180;
     const digitGap = 18;
     const colonW = 28;
-    const numDigits = digits.length;
 
     const padX = 16;
     const padY = 10;
-    const digitH = 180;
     const viewH = digitH + padY * 2;
 
     let svgContent = '';
