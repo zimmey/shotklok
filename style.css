@@ -1,12 +1,16 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #111;
-  --fg: #eee;
-  --accent: #00e676;
+  --bg: #0a0a0a;
+  --seg-off: #1a1a1a;
+  --seg-on: #00e676;
+  --seg-glow: rgba(0, 230, 118, 0.5);
   --danger: #ff1744;
+  --danger-glow: rgba(255, 23, 68, 0.5);
   --warn: #ffab00;
-  --muted: #444;
+  --warn-glow: rgba(255, 171, 0, 0.5);
+  --muted: #333;
+  --fg: #ccc;
 }
 
 html, body {
@@ -20,39 +24,96 @@ html, body {
 }
 
 #app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* LED Display — fills the entire screen */
+#led-display {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#led-display svg {
+  width: 96%;
+  height: 90%;
+}
+
+/* Segment styling */
+.seg-off {
+  fill: var(--seg-off);
+}
+
+.seg-on {
+  fill: var(--seg-on);
+  filter: drop-shadow(0 0 6px var(--seg-glow));
+  transition: fill 0.1s;
+}
+
+/* State-based colors */
+#led-display.paused .seg-on {
+  fill: var(--warn);
+  filter: drop-shadow(0 0 6px var(--warn-glow));
+}
+
+#led-display.expired .seg-on {
+  fill: var(--danger);
+  filter: drop-shadow(0 0 8px var(--danger-glow));
+}
+
+#led-display.expired {
+  animation: led-pulse 0.5s infinite alternate;
+}
+
+@keyframes led-pulse {
+  from { opacity: 1; }
+  to { opacity: 0.2; }
+}
+
+/* Colon dots */
+.colon-dot {
+  fill: var(--seg-off);
+}
+
+.colon-dot.on {
+  fill: var(--seg-on);
+  filter: drop-shadow(0 0 6px var(--seg-glow));
+}
+
+#led-display.paused .colon-dot.on {
+  fill: var(--warn);
+  filter: drop-shadow(0 0 6px var(--warn-glow));
+}
+
+#led-display.expired .colon-dot.on {
+  fill: var(--danger);
+  filter: drop-shadow(0 0 8px var(--danger-glow));
+}
+
+/* Overlay controls — bottom of screen, semi-transparent */
+#overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100%;
+  gap: 0.75rem;
   padding: 1rem;
-  gap: 2rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85) 40%);
+  opacity: 1;
+  transition: opacity 0.3s;
+  z-index: 10;
 }
 
-/* Timer Display */
-#timer-display {
-  font-size: clamp(8rem, 28vw, 22rem);
-  font-weight: bold;
-  line-height: 1;
-  letter-spacing: 0.05em;
-  transition: color 0.3s;
-  text-align: center;
-}
-
-#timer-display.ready { color: var(--fg); }
-#timer-display.running { color: var(--accent); }
-#timer-display.paused { color: var(--warn); }
-#timer-display.expired { color: var(--danger); animation: pulse 0.5s infinite alternate; }
-
-@keyframes pulse {
-  from { opacity: 1; }
-  to { opacity: 0.3; }
-}
-
-.colon {
-  display: inline-block;
-  width: 0.3em;
-  text-align: center;
+#overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Controls */
@@ -67,9 +128,9 @@ html, body {
   color: var(--fg);
   border: none;
   border-radius: 50%;
-  width: 5rem;
-  height: 5rem;
-  font-size: 2rem;
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.8rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -80,14 +141,14 @@ html, body {
 .btn:active { transform: scale(0.92); }
 
 .btn-primary {
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   width: auto;
-  padding: 0 2.5rem;
-  height: 5rem;
-  font-size: 1.8rem;
+  padding: 0 2rem;
+  height: 4rem;
+  font-size: 1.5rem;
   font-weight: bold;
   font-family: inherit;
-  background: var(--accent);
+  background: var(--seg-on);
   color: var(--bg);
 }
 
@@ -98,7 +159,7 @@ html, body {
 /* Duration Selector */
 #duration-bar {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .dur {
@@ -106,24 +167,16 @@ html, body {
   color: var(--muted);
   border: 2px solid var(--muted);
   border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 1.2rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 1rem;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .dur.active {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--seg-on);
+  border-color: var(--seg-on);
 }
 
 .dur:active { transform: scale(0.95); }
-
-/* Landscape tweaks for tablets */
-@media (orientation: landscape) and (max-height: 600px) {
-  #timer-display { font-size: clamp(6rem, 22vh, 14rem); }
-  #app { gap: 1rem; }
-  .btn { width: 4rem; height: 4rem; font-size: 1.5rem; }
-  .btn-primary { height: 4rem; font-size: 1.4rem; padding: 0 2rem; }
-}
