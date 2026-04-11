@@ -56,6 +56,16 @@ html, body {
 }
 
 /* State-based colors */
+#led-display.caution .seg-on {
+  fill: var(--warn);
+  filter: drop-shadow(0 0 6px var(--warn-glow));
+}
+
+#led-display.caution .colon-dot.on {
+  fill: var(--warn);
+  filter: drop-shadow(0 0 6px var(--warn-glow));
+}
+
 #led-display.paused .seg-on {
   fill: var(--warn);
   filter: drop-shadow(0 0 6px var(--warn-glow));

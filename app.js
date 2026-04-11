@@ -120,8 +120,9 @@
   function render() {
     ledDisplay.innerHTML = buildSVG();
     ledDisplay.className = state;
-    btnStart.textContent = (state === 'running' || state === 'warning') ? 'PAUSE' : state === 'expired' ? 'RESET' : 'START';
-    btnStart.classList.toggle('running', state === 'running' || state === 'warning');
+    const isActive = state === 'running' || state === 'warning' || state === 'caution';
+    btnStart.textContent = isActive ? 'PAUSE' : state === 'expired' ? 'RESET' : 'START';
+    btnStart.classList.toggle('running', isActive);
   }
 
   // --- Timer Core ---
@@ -129,8 +130,10 @@
   function tick() {
     if (remaining <= 0) { expire(); return; }
     remaining--;
-    if (remaining <= 10 && remaining > 0 && state !== 'warning') {
+    if (remaining <= 10 && remaining > 0) {
       state = 'warning';
+    } else if (remaining <= 60 && remaining > 10) {
+      state = 'caution';
     }
     render();
     if (remaining <= 0) expire();
@@ -138,7 +141,8 @@
 
   function start() {
     if (state === 'expired') { reset(); return; }
-    state = remaining <= 10 ? 'warning' : 'running';
+    clearInterval(interval);
+    state = remaining <= 10 ? 'warning' : remaining <= 60 ? 'caution' : 'running';
     interval = setInterval(tick, 1000);
     render();
   }
@@ -269,7 +273,7 @@
   // --- Event Handlers ---
 
   btnStart.addEventListener('click', () => {
-    if (state === 'running') pause();
+    if (state === 'running' || state === 'warning' || state === 'caution') pause();
     else start();
   });
 
