@@ -43,7 +43,7 @@
   };
 
   function digitSegments(x, y, w, h) {
-    const t = w * 0.08;
+    const t = w * 0.12;
     const g = t * 0.25;
     const sk = t * 0.15;
 
