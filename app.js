@@ -257,12 +257,35 @@
   });
 
   // --- Buzzer (loops for 30s or until reset) ---
+  // iOS requires Web Audio to be unlocked from a user gesture, so we create
+  // the context lazily on first tap and reuse it across expirations.
+
+  let buzzerOsc = null;
+
+  function ensureAudioCtx() {
+    if (!buzzerCtx) {
+      buzzerCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return buzzerCtx;
+  }
+
+  function unlockAudio() {
+    const ctx = ensureAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    try {
+      const buf = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start(0);
+    } catch (_) {}
+  }
 
   function startBuzzer() {
     stopBuzzer();
-    buzzerCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = ensureAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
     playBuzzerCycle();
-    // Auto-stop after 30 seconds
     buzzerTimeout = setTimeout(stopBuzzer, 30000);
   }
 
@@ -276,22 +299,21 @@
     osc.connect(gain);
     gain.connect(buzzerCtx.destination);
     osc.start();
-    // Beep pattern: on/off/on/off/on/off over 1.2s
     const times = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
     times.forEach((t, i) => {
       gain.gain.setValueAtTime(i % 2 === 0 ? 0.3 : 0, buzzerCtx.currentTime + t);
     });
     osc.stop(buzzerCtx.currentTime + 1.2);
-    // Repeat after a short pause
-    osc.onended = () => playBuzzerCycle();
+    buzzerOsc = osc;
+    osc.onended = () => { buzzerOsc = null; playBuzzerCycle(); };
   }
 
   function stopBuzzer() {
     clearTimeout(buzzerTimeout);
     buzzerTimeout = null;
-    if (buzzerCtx) {
-      buzzerCtx.close();
-      buzzerCtx = null;
+    if (buzzerOsc) {
+      try { buzzerOsc.onended = null; buzzerOsc.stop(); } catch (_) {}
+      buzzerOsc = null;
     }
   }
 
@@ -314,6 +336,7 @@
   // --- Event Handlers ---
 
   btnStart.addEventListener('click', () => {
+    unlockAudio();
     if (state === 'running' || state === 'warning' || state === 'caution') pause();
     else start();
   });
