@@ -15,6 +15,12 @@
 
   // Load saved duration or default to 5 minutes
   let totalSeconds = parseInt(localStorage.getItem('shotklok-duration'), 10) || 300;
+
+  let ledThickness = parseFloat(localStorage.getItem('shotklok-thickness'));
+  if (!(ledThickness >= 0.06 && ledThickness <= 0.18)) ledThickness = 0.12;
+  let ledGap = parseFloat(localStorage.getItem('shotklok-gap'));
+  if (!(ledGap >= 0 && ledGap <= 0.08)) ledGap = 0.03;
+  let theme = localStorage.getItem('shotklok-theme') || 'classic';
   let remaining = totalSeconds;
   let state = 'ready'; // ready | running | warning | paused | expired
   let interval = null;
@@ -43,8 +49,8 @@
   };
 
   function digitSegments(x, y, w, h) {
-    const t = w * 0.12;
-    const g = t * 0.25;
+    const t = w * ledThickness;
+    const g = w * ledGap;
     const sk = t * 0.15;
 
     return [
@@ -213,6 +219,41 @@
       localStorage.setItem('shotklok-duration', totalSeconds);
       render();
     });
+  });
+
+  // --- Theme + Display Preferences ---
+
+  const themeBtns = document.querySelectorAll('.theme');
+  const thicknessSlider = $('#thickness-slider');
+  const gapSlider = $('#gap-slider');
+
+  function applyTheme(t) {
+    document.body.classList.remove('theme-classic', 'theme-red');
+    document.body.classList.add('theme-' + t);
+    theme = t;
+    localStorage.setItem('shotklok-theme', t);
+    themeBtns.forEach((b) => b.classList.toggle('active', b.dataset.theme === t));
+  }
+
+  applyTheme(theme);
+
+  themeBtns.forEach((btn) => {
+    btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+  });
+
+  thicknessSlider.value = ledThickness;
+  gapSlider.value = ledGap;
+
+  thicknessSlider.addEventListener('input', (e) => {
+    ledThickness = parseFloat(e.target.value);
+    localStorage.setItem('shotklok-thickness', ledThickness);
+    render();
+  });
+
+  gapSlider.addEventListener('input', (e) => {
+    ledGap = parseFloat(e.target.value);
+    localStorage.setItem('shotklok-gap', ledGap);
+    render();
   });
 
   // --- Buzzer (loops for 30s or until reset) ---

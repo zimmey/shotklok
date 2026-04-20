@@ -119,6 +119,52 @@ html, body {
   filter: drop-shadow(0 0 8px var(--danger-glow));
 }
 
+/* --- Red theme --- */
+body.theme-red #led-display .seg-on,
+body.theme-red #led-display .colon-dot.on {
+  fill: var(--danger);
+  filter: drop-shadow(0 0 6px var(--danger-glow));
+}
+
+body.theme-red #led-display.caution {
+  animation: led-pulse 0.5s infinite alternate;
+}
+body.theme-red #led-display.caution .seg-on,
+body.theme-red #led-display.caution .colon-dot.on {
+  fill: var(--danger);
+  filter: drop-shadow(0 0 6px var(--danger-glow));
+}
+
+body.theme-red #led-display.warning,
+body.theme-red #led-display.expired {
+  background: var(--danger);
+  animation: led-pulse 0.5s infinite alternate;
+}
+body.theme-red #led-display.warning .seg-on,
+body.theme-red #led-display.warning .colon-dot.on,
+body.theme-red #led-display.expired .seg-on,
+body.theme-red #led-display.expired .colon-dot.on {
+  fill: #000;
+  filter: none;
+}
+body.theme-red #led-display.warning .seg-off,
+body.theme-red #led-display.warning .colon-dot,
+body.theme-red #led-display.expired .seg-off,
+body.theme-red #led-display.expired .colon-dot {
+  fill: rgba(0, 0, 0, 0.15);
+}
+
+body.theme-red #led-display.paused .seg-on,
+body.theme-red #led-display.paused .colon-dot.on {
+  fill: var(--danger);
+  filter: drop-shadow(0 0 6px var(--danger-glow));
+}
+
+body.theme-red .btn-primary,
+body.theme-red .btn-close { background: var(--danger); }
+body.theme-red .btn-primary.running { background: var(--danger); opacity: 0.75; }
+body.theme-red .dur.active { color: var(--danger); border-color: var(--danger); }
+
 /* Overlay controls — bottom of screen, semi-transparent */
 #overlay {
   position: absolute;
@@ -238,6 +284,62 @@ html, body {
 }
 
 .dur:active { transform: scale(0.95); }
+
+/* Theme Selector */
+#theme-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#theme-bar .theme + .theme { margin-left: 0.75rem; }
+
+.theme {
+  background: transparent;
+  color: var(--fg);
+  border: 2px solid var(--fg);
+  border-radius: 0.75rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1.4rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.theme.active {
+  color: var(--seg-on);
+  border-color: var(--seg-on);
+}
+
+body.theme-red .theme.active {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* Display Sliders */
+.slider-row {
+  display: flex;
+  align-items: center;
+  width: 20rem;
+  max-width: 90vw;
+}
+
+.slider-row + .slider-row { margin-top: 1rem; }
+
+.slider-row label {
+  flex: 0 0 8rem;
+  color: var(--fg);
+  font-size: 1rem;
+}
+
+.slider-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--seg-on);
+}
+
+body.theme-red .slider-row input[type="range"] {
+  accent-color: var(--danger);
+}
 
 .btn-close {
   border-radius: 0.75rem;

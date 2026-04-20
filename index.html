@@ -33,8 +33,22 @@
           <button class="dur" data-seconds="300">5:00</button>
           <button class="dur" data-seconds="600">10:00</button>
         </div>
+        <h2>Color Theme</h2>
+        <div id="theme-bar">
+          <button class="theme" data-theme="classic">Classic</button>
+          <button class="theme" data-theme="red">Red</button>
+        </div>
+        <h2>Display</h2>
+        <div class="slider-row">
+          <label for="thickness-slider">Thickness</label>
+          <input type="range" id="thickness-slider" min="0.06" max="0.18" step="0.005">
+        </div>
+        <div class="slider-row">
+          <label for="gap-slider">Segment Gap</label>
+          <input type="range" id="gap-slider" min="0" max="0.08" step="0.005">
+        </div>
         <button id="btn-settings-close" class="btn btn-close">DONE</button>
-        <div id="version">v1.2.2 — <a href="#" id="btn-update">update</a></div>
+        <div id="version">v1.3.0 — <a href="#" id="btn-update">update</a></div>
       </div>
     </div>
   </div>
