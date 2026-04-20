@@ -20,6 +20,8 @@
   if (!(ledThickness >= 0.06 && ledThickness <= 0.18)) ledThickness = 0.12;
   let ledGap = parseFloat(localStorage.getItem('shotklok-gap'));
   if (!(ledGap >= 0 && ledGap <= 0.08)) ledGap = 0.03;
+  let ledSize = parseFloat(localStorage.getItem('shotklok-size'));
+  if (!(ledSize >= 0.8 && ledSize <= 1.5)) ledSize = 1.0;
   let theme = localStorage.getItem('shotklok-theme') || 'classic';
   let remaining = totalSeconds;
   let state = 'ready'; // ready | running | warning | paused | expired
@@ -86,11 +88,11 @@
 
     const digitW = 100;
     const digitH = 180;
-    const digitGap = 18;
-    const colonW = 28;
+    const digitGap = 18 / ledSize;
+    const colonW = 28 / ledSize;
 
-    const padX = 16;
-    const padY = 10;
+    const padX = 16 / ledSize;
+    const padY = 10 / ledSize;
     const viewH = digitH + padY * 2;
 
     let svgContent = '';
@@ -226,6 +228,15 @@
   const themeBtns = document.querySelectorAll('.theme');
   const thicknessSlider = $('#thickness-slider');
   const gapSlider = $('#gap-slider');
+  const sizeSlider = $('#size-slider');
+
+  function applySize(s) {
+    ledSize = s;
+    document.body.style.setProperty('--led-size', s);
+    localStorage.setItem('shotklok-size', s);
+  }
+
+  applySize(ledSize);
 
   function applyTheme(t) {
     document.body.classList.remove('theme-classic', 'theme-red');
@@ -243,6 +254,7 @@
 
   thicknessSlider.value = ledThickness;
   gapSlider.value = ledGap;
+  sizeSlider.value = ledSize;
 
   thicknessSlider.addEventListener('input', (e) => {
     ledThickness = parseFloat(e.target.value);
@@ -253,6 +265,11 @@
   gapSlider.addEventListener('input', (e) => {
     ledGap = parseFloat(e.target.value);
     localStorage.setItem('shotklok-gap', ledGap);
+    render();
+  });
+
+  sizeSlider.addEventListener('input', (e) => {
+    applySize(parseFloat(e.target.value));
     render();
   });
 

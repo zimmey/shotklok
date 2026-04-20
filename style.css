@@ -36,7 +36,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2%;
+  padding: calc(2% / var(--led-size, 1));
 }
 
 #led-display svg {
