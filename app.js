@@ -23,6 +23,9 @@
   let ledSize = parseFloat(localStorage.getItem('shotklok-size'));
   if (!(ledSize >= 0.8 && ledSize <= 1.5)) ledSize = 1.0;
   let theme = localStorage.getItem('shotklok-theme') || 'classic';
+  // Default glow off on Fire tablets (model codes start with KF); the filters lag their GPU
+  let glow = localStorage.getItem('shotklok-glow') ||
+    (/\bKF[A-Z]{2,}\b|Silk/.test(navigator.userAgent) ? 'off' : 'on');
   let remaining = totalSeconds;
   let state = 'ready'; // ready | running | warning | paused | expired
   let interval = null;
@@ -225,7 +228,8 @@
 
   // --- Theme + Display Preferences ---
 
-  const themeBtns = document.querySelectorAll('.theme');
+  const themeBtns = document.querySelectorAll('#theme-bar .theme');
+  const glowBtns = document.querySelectorAll('#glow-bar .theme');
   const thicknessSlider = $('#thickness-slider');
   const gapSlider = $('#gap-slider');
   const sizeSlider = $('#size-slider');
@@ -250,6 +254,19 @@
 
   themeBtns.forEach((btn) => {
     btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+  });
+
+  function applyGlow(g) {
+    glow = g;
+    document.body.classList.toggle('no-glow', g === 'off');
+    localStorage.setItem('shotklok-glow', g);
+    glowBtns.forEach((b) => b.classList.toggle('active', b.dataset.glow === g));
+  }
+
+  applyGlow(glow);
+
+  glowBtns.forEach((btn) => {
+    btn.addEventListener('click', () => applyGlow(btn.dataset.glow));
   });
 
   thicknessSlider.value = ledThickness;

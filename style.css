@@ -292,7 +292,13 @@ body.theme-red .dur.active { color: var(--danger); border-color: var(--danger); 
   justify-content: center;
 }
 
-#theme-bar .theme + .theme { margin-left: 0.75rem; }
+#theme-bar .theme + .theme,
+#glow-bar .theme + .theme { margin-left: 0.75rem; }
+
+#glow-bar {
+  display: flex;
+  justify-content: center;
+}
 
 .theme {
   background: transparent;
@@ -363,4 +369,10 @@ body.theme-red .slider-row input[type="range"] {
 #version a {
   color: var(--fg);
   text-decoration: underline;
+}
+
+/* Glow off: drop-shadow filters are very slow on old GPUs (e.g. Fire OS 5) */
+body.no-glow #led-display .seg-on,
+body.no-glow #led-display .colon-dot.on {
+  filter: none !important;
 }
