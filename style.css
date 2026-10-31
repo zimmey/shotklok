@@ -235,6 +235,8 @@ body.theme-red .dur.active { color: var(--danger); border-color: var(--danger); 
   justify-content: center;
   z-index: 20;
   transition: opacity 0.2s;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 #settings-modal.modal-hidden {
@@ -242,13 +244,17 @@ body.theme-red .dur.active { color: var(--danger); border-color: var(--danger); 
   pointer-events: none;
 }
 
+/* margin: auto centers the panel but lets it scroll from the top when it's taller than the screen */
 #settings-panel {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: auto;
+  padding: 1.5rem 1rem;
 }
 
 #settings-panel > * + * { margin-top: 2rem; }
+
 
 #settings-panel h2 {
   font-size: 1.8rem;
@@ -387,3 +393,9 @@ body.glow-single #led-display.expired .lit { filter: drop-shadow(0 0 8px var(--d
 body.glow-single.theme-red #led-display .lit { filter: drop-shadow(0 0 6px var(--danger-glow)); }
 body.glow-single.theme-red #led-display.warning .lit,
 body.glow-single.theme-red #led-display.expired .lit { filter: none; }
+
+/* Short screens (tablets in landscape): tighten spacing so it all fits */
+@media (max-height: 820px) {
+  #settings-panel > * + * { margin-top: 1rem; }
+  #settings-panel h2 { font-size: 1.4rem; }
+}

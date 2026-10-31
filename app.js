@@ -208,13 +208,12 @@
       return;
     }
     btnUpdate.textContent = 'updating...';
-    // Clear all caches so reload fetches everything fresh
+    // Pick up a new SW first; it revalidates every file, so the reload can't mix
+    // fresh and HTTP-cached versions (unregistering left the reload to that cache)
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg) { try { await reg.update(); } catch (_) {} }
     const keys = await caches.keys();
     await Promise.all(keys.map((k) => caches.delete(k)));
-    // Unregister SW so it doesn't serve stale files during reload
-    const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.map((r) => r.unregister()));
-    // Reload from network — SW will re-register and cache fresh files
     window.location.reload();
   });
 
@@ -262,6 +261,7 @@
   });
 
   function applyGlow(g) {
+    if (g === 'on') g = 'individual'; // button from a v1.3.3 page
     glow = g;
     document.body.classList.toggle('no-glow', g !== 'individual');
     document.body.classList.toggle('glow-single', g === 'single');
