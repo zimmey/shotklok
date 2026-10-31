@@ -297,6 +297,7 @@ body.theme-red .dur.active { color: var(--danger); border-color: var(--danger); 
 
 #glow-bar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
 }
 
@@ -376,3 +377,13 @@ body.no-glow #led-display .seg-on,
 body.no-glow #led-display .colon-dot.on {
   filter: none !important;
 }
+
+/* Single glow: one filter pass over all lit segments instead of one per segment */
+body.glow-single #led-display .lit { filter: drop-shadow(0 0 6px var(--seg-glow)); }
+body.glow-single #led-display.caution .lit,
+body.glow-single #led-display.paused .lit { filter: drop-shadow(0 0 6px var(--warn-glow)); }
+body.glow-single #led-display.warning .lit,
+body.glow-single #led-display.expired .lit { filter: drop-shadow(0 0 8px var(--danger-glow)); }
+body.glow-single.theme-red #led-display .lit { filter: drop-shadow(0 0 6px var(--danger-glow)); }
+body.glow-single.theme-red #led-display.warning .lit,
+body.glow-single.theme-red #led-display.expired .lit { filter: none; }

@@ -23,9 +23,13 @@
   let ledSize = parseFloat(localStorage.getItem('shotklok-size'));
   if (!(ledSize >= 0.8 && ledSize <= 1.5)) ledSize = 1.0;
   let theme = localStorage.getItem('shotklok-theme') || 'classic';
-  // Default glow off on Fire tablets (model codes start with KF); the filters lag their GPU
-  let glow = localStorage.getItem('shotklok-glow') ||
-    (/\bKF[A-Z]{2,}\b|Silk/.test(navigator.userAgent) ? 'off' : 'on');
+  // Glow: individual (filter per segment), single (one filter on the lit group), off.
+  // Default off on Fire tablets (model codes start with KF); the filters lag their GPU.
+  let glow = localStorage.getItem('shotklok-glow');
+  if (glow === 'on') glow = 'individual';
+  if (['individual', 'single', 'off'].indexOf(glow) < 0) {
+    glow = /\bKF[A-Z]{2,}\b|Silk/.test(navigator.userAgent) ? 'off' : 'individual';
+  }
   let remaining = totalSeconds;
   let state = 'ready'; // ready | running | warning | paused | expired
   let interval = null;
@@ -98,15 +102,16 @@
     const padY = 10 / ledSize;
     const viewH = digitH + padY * 2;
 
-    let svgContent = '';
+    let offContent = '';
+    let onContent = '';
     let curX = padX;
 
     digits.forEach((d, i) => {
       const segs = digitSegments(curX, padY, digitW, digitH);
       const on = SEGMENTS[d];
       segs.forEach((points, si) => {
-        const cls = on[si] ? 'seg-on' : 'seg-off';
-        svgContent += `<polygon class="${cls}" points="${points}"/>`;
+        if (on[si]) onContent += `<polygon class="seg-on" points="${points}"/>`;
+        else offContent += `<polygon class="seg-off" points="${points}"/>`;
       });
       curX += digitW;
 
@@ -114,8 +119,8 @@
         const cx = curX + (colonW + digitGap * 2) / 2;
         const dotR = digitW * 0.06;
         const dotCls = 'colon-dot on';
-        svgContent += `<circle class="${dotCls}" cx="${cx}" cy="${padY + digitH * 0.3}" r="${dotR}"/>`;
-        svgContent += `<circle class="${dotCls}" cx="${cx}" cy="${padY + digitH * 0.7}" r="${dotR}"/>`;
+        onContent += `<circle class="${dotCls}" cx="${cx}" cy="${padY + digitH * 0.3}" r="${dotR}"/>`;
+        onContent += `<circle class="${dotCls}" cx="${cx}" cy="${padY + digitH * 0.7}" r="${dotR}"/>`;
         curX += colonW + digitGap * 2;
       } else if (i < digits.length - 1) {
         curX += digitGap;
@@ -123,7 +128,7 @@
     });
 
     const viewW = curX + padX;
-    return `<svg viewBox="0 0 ${viewW} ${viewH}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">${svgContent}</svg>`;
+    return `<svg viewBox="0 0 ${viewW} ${viewH}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"><g>${offContent}</g><g class="lit">${onContent}</g></svg>`;
   }
 
   // --- Rendering ---
@@ -258,7 +263,8 @@
 
   function applyGlow(g) {
     glow = g;
-    document.body.classList.toggle('no-glow', g === 'off');
+    document.body.classList.toggle('no-glow', g !== 'individual');
+    document.body.classList.toggle('glow-single', g === 'single');
     localStorage.setItem('shotklok-glow', g);
     glowBtns.forEach((b) => b.classList.toggle('active', b.dataset.glow === g));
   }
